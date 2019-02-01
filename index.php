@@ -16,6 +16,8 @@ $img = new ImgCreate($options);
 
 $img->empty_result_folder();
 
+$img->encode_file_to_utf8();
+
 $img->read_file(";");
 
 $img->read_template_svg();
@@ -38,7 +40,7 @@ Class ImgCreate
 	];
 
 
-  public function __construct($options)
+	public function __construct($options)
 	{
 		$this->options=$options+$this->options;
 
@@ -58,6 +60,20 @@ Class ImgCreate
 
 	}
 
+	public function encode_file_to_utf8()
+	{
+		$handle=fopen("temp_data.csv", "w+");          
+		$unencoded_data=file($this->options["data_file"]);
+
+		array_map(function($unencoded_string) use ($handle){
+			
+			$encoded_string=mb_convert_encoding($unencoded_string, "utf-8", "Windows-1251"); 
+
+			fwrite($handle, $encoded_string); },$unencoded_data);
+			
+		fclose($handle);
+		$this->options["data_file"]="temp_data.csv";
+	}
 
 	public function read_file($delimiter)
 	{
@@ -77,8 +93,10 @@ Class ImgCreate
 		if ($this->options["columns_for_base64encode"]){
 			$this->base64encode();
 		}
+		
+		unlink($this->options["data_file"]);
 	}
-
+	
 
 	public function empty_result_folder()
 	{
@@ -129,7 +147,9 @@ Class ImgCreate
 	public function sanitize_file_name()
 	{
 		$this->names=array_map(function($file_name){
+			
 			return preg_replace("~[^a-zA-Z0-9\._\/]~","",$file_name);
+			
 		},$this->names);
 	}
 
@@ -181,7 +201,7 @@ Class ImgCreate
 		foreach($this->svg_files as $svg_file){
 
 			$file_name=pathinfo($svg_file);
-
+			
 			$im->readImage($svg_file);
 
 			$im->writeImage($this->options['result_folder']."/{$file_name['filename']}".$this->options['result_extension']);
