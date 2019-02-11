@@ -11,6 +11,7 @@ $options=[];
 //$options["columns_for_names"]=[];
 //$options["columns_for_base64encode"]=[];
 //$options["result_extension"]=".png";
+//$options["data_file_encoding"]="Windows-1251";
 
 $img = new ImgCreate($options);
 
@@ -36,7 +37,8 @@ Class ImgCreate
 	"result_folder"=>"result",
 	"columns_for_names"=>[],
 	"columns_for_base64encode"=>[],
-	"result_extension"=>".png"
+	"result_extension"=>".png",
+	"data_file_encoding"=>"Windows-1251"
 	];
 
 
@@ -62,19 +64,20 @@ Class ImgCreate
 
 	public function encode_file_to_utf8()
 	{
-		$handle=fopen("temp_data.csv", "w+");          
+		$handle=fopen("temp_data.csv", "w+");  
+
 		$unencoded_data=file($this->options["data_file"]);
 
 		array_map(function($unencoded_string) use ($handle){
 			
-			$encoded_string=mb_convert_encoding($unencoded_string, "utf-8", "Windows-1251"); 
+			$encoded_string=mb_convert_encoding($unencoded_string, "utf-8", $this->options["data_file_encoding"]); 
 
 			fwrite($handle, $encoded_string); },$unencoded_data);
 			
 		fclose($handle);
 		$this->options["data_file"]="temp_data.csv";
 	}
-
+	
 	public function read_file($delimiter)
 	{
 		$this->data=file($this->options["data_file"], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -97,7 +100,6 @@ Class ImgCreate
 		unlink($this->options["data_file"]);
 	}
 	
-
 	public function empty_result_folder()
 	{
 		$this->files = glob("./".$this->options["result_folder"]."/*");
@@ -140,7 +142,7 @@ Class ImgCreate
 
 		},$this->replace, array_keys($this->replace));
 
-			$this->sanitize_file_name();
+		$this->sanitize_file_name();
 	}
 
 
@@ -148,12 +150,20 @@ Class ImgCreate
 	{
 		$this->names=array_map(function($file_name){
 			
-			return preg_replace("~[^a-zA-Z0-9\._\/]~","",$file_name);
+			preg_replace("~[^a-zA-Z0-9\._\/]~","",$file_name);
+			
+			return $this->translit($file_name);
 			
 		},$this->names);
 	}
 
-
+	public function translit($str)
+	{
+		$rus = array('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я');
+		$lat = array('A', 'B', 'V', 'G', 'D', 'E', 'E', 'Gh', 'Z', 'I', 'Y', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', 'H', 'C', 'Ch', 'Sh', 'Sch', 'Y', 'Y', 'Y', 'E', 'Yu', 'Ya', 'a', 'b', 'v', 'g', 'd', 'e', 'e', 'gh', 'z', 'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'c', 'ch', 'sh', 'sch', 'y', 'y', 'y', 'e', 'yu', 'ya');
+		return str_replace($rus, $lat, $str);
+	}
+	
 	public function read_template_svg()
 	{
 		$this->template_svg_data=$this->data_from_svg_template=file_get_contents($this->options["svg"]);
