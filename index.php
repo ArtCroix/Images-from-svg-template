@@ -12,6 +12,9 @@ $options=[];
 //$options["columns_for_base64encode"]=[];
 //$options["result_extension"]=".png";
 //$options["data_file_encoding"]="Windows-1251";
+//$options["result_image_width"]=0;
+//$options["result_image_height"]=0;
+//$options["save_proportion"]=true;
 
 $img = new ImgCreate($options);
 
@@ -38,7 +41,10 @@ Class ImgCreate
 	"columns_for_names"=>[],
 	"columns_for_base64encode"=>[],
 	"result_extension"=>".png",
-	"data_file_encoding"=>"Windows-1251"
+	"data_file_encoding"=>"Windows-1251",
+	"result_image_width"=>0,
+	"result_image_height"=>0,
+	"save_proportion"=>true
 	];
 
 
@@ -160,7 +166,7 @@ Class ImgCreate
 	public function translit($str)
 	{
 		$rus = array('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я');
-		$lat = array('A', 'B', 'V', 'G', 'D', 'E', 'E', 'Gh', 'Z', 'I', 'Y', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', 'H', 'C', 'Ch', 'Sh', 'Sch', 'Y', 'Y', 'Y', 'E', 'Yu', 'Ya', 'a', 'b', 'v', 'g', 'd', 'e', 'e', 'gh', 'z', 'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'c', 'ch', 'sh', 'sch', 'y', 'y', 'y', 'e', 'yu', 'ya');
+		$lat = array('A', 'B', 'V', 'G', 'D', 'E', 'E', 'Zh', 'Z', 'I', 'Y', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', 'H', 'C', 'Ch', 'Sh', 'Sch', 'Y', 'Y', 'Y', 'E', 'Yu', 'Ya', 'a', 'b', 'v', 'g', 'd', 'e', 'e', 'zh', 'z', 'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'c', 'ch', 'sh', 'sch', 'y', 'y', 'y', 'e', 'yu', 'ya');
 		return str_replace($rus, $lat, $str);
 	}
 	
@@ -207,12 +213,18 @@ Class ImgCreate
 			echo $e->getMessage(), "\n";
 			return 0;
 		}
-
+		
+				
 		foreach($this->svg_files as $svg_file){
 
 			$file_name=pathinfo($svg_file);
 			
 			$im->readImage($svg_file);
+			
+			if($options["result_image_width"]!=0){
+				
+				$im->scaleImage($options["result_image_width"], $options["result_image_height"], $options["save_proportion"]);
+			}
 
 			$im->writeImage($this->options['result_folder']."/{$file_name['filename']}".$this->options['result_extension']);
 
