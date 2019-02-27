@@ -175,6 +175,16 @@ Class ImgCreate
 	
 	public function read_template_svg()
 	{
+		
+		try	{
+			if (!file_exists($this->options["svg"])) {
+					throw new Exception("SVG template '{$this->options["svg"]}' doesn't exist");
+			 }
+		}catch(Exception $e){
+			echo $e->getMessage(), "\n";
+			exit;
+		}
+		
 		$this->template_svg_data=$this->data_from_svg_template=file_get_contents($this->options["svg"]);
 
 		$this->create_files_name();
