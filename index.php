@@ -15,6 +15,8 @@ $options=[];
 //$options["result_image_width"]=0;
 //$options["result_image_height"]=0;
 //$options["save_proportion"]=true;
+//$options["x_res"]=300;
+//$options["y_res"]=300;
 
 $img = new ImgCreate($options);
 
@@ -42,6 +44,8 @@ Class ImgCreate
 	"columns_for_base64encode"=>[],
 	"result_extension"=>".png",
 	"data_file_encoding"=>"Windows-1251",
+	"x_res"=>300,
+	"y_res"=>300,
 	"result_image_width"=>0,
 	"result_image_height"=>0,
 	"save_proportion"=>true
@@ -65,7 +69,6 @@ Class ImgCreate
 		if (!file_exists($this->options["result_folder"])){
 			mkdir($this->options["result_folder"]);
 		}
-
 	}
 
 	public function encode_file_to_utf8()
@@ -208,7 +211,7 @@ Class ImgCreate
 			}
 
 			$im = new Imagick();
-
+			$im->setResolution($this->options["x_res"], $this->options["y_res"]);
 		}catch (Exception $e) {
 			echo $e->getMessage(), "\n";
 			return 0;
@@ -221,11 +224,11 @@ Class ImgCreate
 			
 			$im->readImage($svg_file);
 			
-			if($options["result_image_width"]!=0){
+ 			if($this->options["result_image_width"]!=0){
 				
-				$im->scaleImage($options["result_image_width"], $options["result_image_height"], $options["save_proportion"]);
-			}
-
+				$im->scaleImage($this->options["result_image_width"], $this->options["result_image_height"], $this->options["save_proportion"]);
+			} 
+	
 			$im->writeImage($this->options['result_folder']."/{$file_name['filename']}".$this->options['result_extension']);
 
 			$im->clear();
