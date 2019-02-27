@@ -15,8 +15,8 @@ $options=[];
 //$options["result_image_width"]=0;
 //$options["result_image_height"]=0;
 //$options["save_proportion"]=true;
-//$options["x_res"]=300;
-//$options["y_res"]=300;
+//$options["x_res"]=150;
+//$options["y_res"]=150;
 
 $img = new ImgCreate($options);
 
@@ -44,8 +44,8 @@ Class ImgCreate
 	"columns_for_base64encode"=>[],
 	"result_extension"=>".png",
 	"data_file_encoding"=>"Windows-1251",
-	"x_res"=>300,
-	"y_res"=>300,
+	"x_res"=>150,
+	"y_res"=>150,
 	"result_image_width"=>0,
 	"result_image_height"=>0,
 	"save_proportion"=>true
@@ -219,9 +219,7 @@ Class ImgCreate
 
 				throw new Exception ("Class 'Imagick' not found \n");
 			}
-
-			$im = new Imagick();
-			$im->setResolution($this->options["x_res"], $this->options["y_res"]);
+	
 		}catch (Exception $e) {
 			echo $e->getMessage(), "\n";
 			return 0;
@@ -231,6 +229,10 @@ Class ImgCreate
 		foreach($this->svg_files as $svg_file){
 
 			$file_name=pathinfo($svg_file);
+			
+			$im = new Imagick();
+			
+			$im->setResolution($this->options["x_res"], $this->options["y_res"]);	
 			
 			$im->readImage($svg_file);
 			
