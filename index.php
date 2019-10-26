@@ -218,7 +218,7 @@ class ImgCreate
 			$modified_svg_data = str_replace($this->search, preg_replace('~[&]~iu', '&amp;', $this->replace[$name_index]), $this->template_svg_data);
 
 			if (php_sapi_name() == "cli") {
-				echo $name_index . ") " . $name . "\n";
+				echo $name_index . ") " . $name . PHP_EOL;
 			} else {
 				echo $modified_svg_data;
 			}
@@ -226,7 +226,7 @@ class ImgCreate
 			file_put_contents($name . ".svg", $modified_svg_data);
 		}
 
-		$this->svg_files = glob("./" . $this->options["result_folder"] . "/*.svg");
+		$this->svg_files = glob(realpath($this->options["result_folder"]) . "/*.svg");
 	}
 
 	public function create_image()
@@ -262,7 +262,7 @@ class ImgCreate
 				$im->scaleImage($this->options["result_image_width"], $this->options["result_image_height"], $this->options["save_proportion"]);
 			}
 			try {
-				$im->writeImage($this->options['result_folder'] . "/{$file_name['filename']}" . $this->options['result_extension']);
+				$im->writeImage("{$file_name['dirname']}"  . "/{$file_name['filename']}" . $this->options['result_extension']);
 			} catch (Exception $e) {
 				echo $e->getMessage() . PHP_EOL;
 				exit;
