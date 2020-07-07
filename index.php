@@ -5,20 +5,20 @@
 $options = [];
 
 /* default options values */
-//$options["data_file"]="data.csv";
-//$options["svg"]="template.svg";
-//$options["result_folder"]="result";
-//$options["columns_for_names"]=[];
-//$options["translit_files_names"]=true;
-//$options["regexp_for_files_names"]='~[^\d\w\s_*]~ui';
-//$options["columns_for_base64encode"]=[];
-//$options["result_extension"]=".png";
-//$options["data_file_encoding"]="Windows-1251";
-//$options["result_image_width"]=0;
-//$options["result_image_height"]=0;
-//$options["save_proportion"]=true;
-//$options["x_res"]=150;
-//$options["y_res"]=150;
+// $options["data_file"] = "data.csv";
+// $options["svg"] = "template.svg";
+// $options["result_folder"] = "result";
+// $options["columns_for_names"] = [];
+// $options["translit_files_names"] = true;
+// $options["regexp_for_files_names"]='~[^\d\w\s_]~ui';
+// $options["columns_for_base64encode"]=[];
+// $options["result_extension"]=".png";
+// $options["data_file_encoding"]="Windows-1251";
+// $options["result_image_x_res"] = 150;
+// $options["result_image_y_res"] = 150;
+// $options["result_image_width"]=0;
+// $options["result_image_height"]=0;
+// $options["save_proportion"]=true;
 
 $img = new ImgCreate($options);
 
@@ -45,7 +45,7 @@ class ImgCreate
 		"svg" => "template.svg",
 		"result_folder" => "result",
 		"columns_for_names" => [],
-		"regexp_for_files_names" => '~[^\d\w\s_*]~ui',
+		"regexp_for_files_names" => '~[^\d\w\s_]~ui',
 		"translit_files_names" => true,
 		"columns_for_base64encode" => [],
 		"result_extension" => ".png",
@@ -82,7 +82,7 @@ class ImgCreate
 
 		array_map(function ($unencoded_string) use ($handle) {
 
-			$encoded_string = mb_convert_encoding($unencoded_string, "utf-8");
+			$encoded_string = mb_convert_encoding($unencoded_string, 'utf-8', 'Windows-1251');
 
 			fwrite($handle, $encoded_string);
 		}, $unencoded_data);
@@ -102,7 +102,6 @@ class ImgCreate
 		$this->count_data = count($this->data);
 
 		for ($i = 0; $i < $this->count_data; $i++) {
-
 			$this->replace[$i] = explode($delimiter, trim($this->data[$i]));
 		}
 
@@ -156,12 +155,14 @@ class ImgCreate
 
 	public function create_files_names()
 	{
-		$this->names = array_map(function ($replace, $key) {
+		$this->names = array_map(function ($replace) {
 
-			return implode("_", array_filter($replace, function ($key) {
-				if (in_array($key, $this->options["columns_for_names"])) return true;
+			return implode("_", array_filter($replace, function ($key) use ($replace) {
+				if (in_array($key, $this->options["columns_for_names"])) {
+					return true;
+				}
 			}, ARRAY_FILTER_USE_KEY));
-		}, $this->replace, array_keys($this->replace));
+		}, $this->replace);
 
 		if ($this->options["regexp_for_files_names"]) {
 			$this->sanitize_files_names();
